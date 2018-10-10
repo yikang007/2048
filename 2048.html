@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <style>
+        #container {
+            width: 400px;
+            height: 400px;
+            border: 1px solid red
+        }
+
+        #container div {
+            border: 1px solid red;
+            width: 100px;
+            height: 100px;
+            line-height: 100px;
+            text-align: center;
+            font-size: 50px;
+            font-weight: bold;
+            float: left;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='container'>
+
+    </div>
+
+    <script>
+        //建造界面
+        function buildInterface() {
+            var container = document.getElementById('container')
+            for (var y = 0; y < 4; y++) {
+                for (var x = 0; x < 4; x++) {
+                    var div = document.createElement('div')
+                    div.id = String(x) + String(y)
+                    container.appendChild(div)
+                }
+            }
+        }
+        //随机生成整数
+        function getRandomInt(min, max) {
+            min = Math.ceil(min)
+            max = Math.floor(max)
+            return Math.floor(Math.random() * (max - min) + min);
+        }
+        //生成数字2或者4
+        function createNumber2or4() {
+            if (Math.random() > 0.5) {
+                return 2
+            } else {
+                return 4
+            }
+        }
+        //渲染数字到界面上去
+        function renderNumbersToInterface(num) {
+            var allbboxs = document.querySelectorAll('#container > div')
+            var result = [];
+            for (var i = 0; i < allbboxs.length; i++) {
+                var box = allbboxs[i]
+                if (box.textContent === '') {
+                    result.push(box)
+                }
+            }
+            if (!result.length) return;
+            var position = getRandomInt(0, result.length)
+            result[position].textContent = num;
+        }
+     
+        //添加事件且进行监听
+        function addEvent() {
+            document.addEventListener('keyup', function (e) {
+                var code = e.keyCode
+                console.log(e.keyCode)
+                console.log(gameOver)
+                if (code === 38 && canMoveUp()) {
+                    console.log('up')
+                    moveUp()
+                } else if (code === 40 && canMoveDown()) {
+                    console.log('down')
+                    moveDown()
+                } else if (code === 37 && canMoveLeft()) {
+                    console.log('left')
+                    moveLeft()
+                } else if (code === 39 && canMoveRight()) {
+                    console.log('right')
+                    moveRight()
+                }
+                reset()
+                gameOver()
+            })
+        }
+        //向上和向左的移动算法
+        function addNumbers_up(arr) {
+            var formatArr = []
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] !== '') {
+                    formatArr.push(arr[i])
+                }
+            }
+            var result = []
+            for (var i = 0; i < formatArr.length; i++) {
+                if (i === formatArr.length - 1) {
+                    result.push(formatArr[i])
+                } else if (formatArr[i] === formatArr[i + 1]) {
+                    result.push(formatArr[i] + formatArr[i + 1])
+                    i++;
+                } else {
+                    result.push(formatArr[i])
+                }
+            }
+            return result;
+        }
+        //向下和向右的移动算法
+        function addNumbers_down(arr){
+            var formatArr = []
+            for (var i = arr.length -1 ; i > -1 ; i--) {
+                if (arr[i] !== '') {
+                    formatArr.push(arr[i])
+                }
+            }
+            var result = []
+            for (var i = 0; i < formatArr.length; i++) {
+                if (i === formatArr.length - 1) {
+                    result.push(formatArr[i])
+                } else if (formatArr[i] === formatArr[i + 1]) {
+                    result.push(formatArr[i] + formatArr[i + 1])
+                    i++;
+                } else {
+                    result.push(formatArr[i])
+                }
+            }
+            return result;
+        }
+        //实现向左移动
+        function moveUp() {
+            var boxs = Array.prototype.slice.call(document.querySelectorAll('#container > div'));
+            var rows = [];
+            for (var i = 0; i < 4; i++) {
+                var rows_up = []
+                for (var k = i; k < 16; k += 4) {
+                    rows_up.push(boxs[k])
+                }
+                rows.push(rows_up)
+            }
+            console.log(rows)
+            var rowValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var values = []
+                for (var k = 0; k < rows[i].length; k++) {
+                    var value = rows[i][k].textContent
+                    values.push(value == '' ? '' : parseInt(value))
+                }
+                rowValues.push(values)
+            }
+            console.log(rowValues)
+            var resultRowValues = [];
+            for (var i = 0; i < rowValues.length; i++) {
+                resultRowValues.push(addNumbers_up(rowValues[i]))
+            }
+            console.log(resultRowValues)
+            for (var i = 0; i < resultRowValues.length; i++) {
+                for (var k = 0; k < 4; k++) {
+                    rows[i][k].textContent = resultRowValues[i][k]
+                }
+            }
+            renderNumbersToInterface(createNumber2or4());
+        }
+        //实现向右移动
+        function moveDown(){
+            var boxs = Array.prototype.slice.call(document.querySelectorAll('#container > div'));
+            var rows = [];
+            for (var i = 0; i < 4; i++) {
+                var rows_up = []
+                for (var k = i; k < 16; k += 4) {
+                    rows_up.push(boxs[k])
+                }
+                rows.push(rows_up)
+            }
+            console.log(rows)
+            var rowValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var values = []
+                for (var k = 0; k < rows[i].length; k++) {
+                    var value = rows[i][k].textContent
+                    values.push(value == '' ? '' : parseInt(value))
+                }
+                rowValues.push(values)
+            }
+            console.log(rowValues)
+            var resultRowValues = [];
+            for (var i = 0; i < rowValues.length; i++) {
+                resultRowValues.push(addNumbers_down(rowValues[i]))
+            }
+            console.log(resultRowValues)
+            for (var i = 0; i < resultRowValues.length; i++) {
+                for (var k = 0; k < 4; k++) {
+                    rows[i][k].textContent = resultRowValues[i][3-k]
+                }
+            }
+            renderNumbersToInterface(createNumber2or4());
+        }
+        //实现向左移动
+        function moveLeft(){
+            var boxs = Array.prototype.slice.call(document.querySelectorAll('#container > div'));
+            var rows = [];
+            for (var i = 0; i < 16; i+=4) {
+                rows.push(boxs.slice(i,i+4))
+            }
+            console.log(rows)
+            var rowValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var values = []
+                for (var k = 0; k < rows[i].length; k++) {
+                    var value = rows[i][k].textContent
+                    values.push(value == '' ? '' : parseInt(value))
+                }
+                rowValues.push(values)
+            }
+            console.log(rowValues)
+            var resultRowValues = [];
+            for (var i = 0; i < rowValues.length; i++) {
+                resultRowValues.push(addNumbers_up(rowValues[i]))
+            }
+            console.log(resultRowValues)
+            for (var i = 0; i < resultRowValues.length; i++) {
+                for (var k = 0; k < 4; k++) {
+                    rows[i][k].textContent = resultRowValues[i][k]
+                }
+            }
+            renderNumbersToInterface(createNumber2or4());
+        }
+        //实现向右移动
+        function moveRight(){
+            var boxs = Array.prototype.slice.call(document.querySelectorAll('#container > div'));
+            var rows = [];
+            for (var i = 0; i < 16; i+=4) {
+                rows.push(boxs.slice(i,i+4))
+            }
+            console.log(rows)
+            var rowValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var values = []
+                for (var k = 0; k < rows[i].length; k++) {
+                    var value = rows[i][k].textContent
+                    values.push(value == '' ? '' : parseInt(value))
+                }
+                rowValues.push(values)
+            }
+            console.log(rowValues)
+            var resultRowValues = [];
+            for (var i = 0; i < rowValues.length; i++) {
+                resultRowValues.push(addNumbers_down(rowValues[i]))
+            }
+            console.log(resultRowValues)
+            for (var i = 0; i < resultRowValues.length; i++) {
+                for (var k = 0; k < 4; k++) {
+                    rows[i][k].textContent = resultRowValues[i][3-k]
+                }
+            }
+            renderNumbersToInterface(createNumber2or4());
+        }
+        //判断是否能向上移动
+        function canMoveUp() {
+            var boxs = Array.prototype.slice.call(document.querySelectorAll('#container > div'));
+            var rows = [];
+            for (var i = 0; i < 4; i++) {
+                var rows_up = []
+                for (var k = i; k < 16; k += 4) {
+                    rows_up.push(boxs[k])
+                }
+                rows.push(rows_up)
+            }
+            console.log(rows)
+            var rowValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var values = []
+                for (var k = 0; k < rows[i].length; k++) {
+                    var value = rows[i][k].textContent
+                    values.push(value == '' ? '' : parseInt(value))
+                }
+                rowValues.push(values)
+                if (canRowMoveUp(values)) {
+                    return true;
+                }
+            }
+            console.log(rowValues)
+            var resultRowValues = [];
+            for (var i = 0; i < rowValues.length; i++) {
+                resultRowValues.push(addNumbers_up(rowValues[i]))
+            }
+            if (canRowMoveUp(resultRowValues)) {
+                return true;
+            }
+            return false;
+        }
+        //判断是否能向下移动
+        function canMoveDown(){ 
+            var boxs = Array.prototype.slice.call(document.querySelectorAll('#container > div'));
+            var rows = [];
+            for (var i = 0; i < 4; i++) {
+                var rows_up = []
+                for (var k = i; k < 16; k += 4) {
+                    rows_up.push(boxs[k])
+                }
+                rows.push(rows_up)
+            }
+            console.log(rows)
+            var rowValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var values = []
+                for (var k = 0; k < rows[i].length; k++) {
+                    var value = rows[i][k].textContent
+                    values.push(value == '' ? '' : parseInt(value))
+                }
+                rowValues.push(values)
+                if (canRowMoveDown(values)) {
+                    return true;
+                }
+            }
+            console.log(rowValues)
+            var resultRowValues = [];
+            for (var i = 0; i < rowValues.length; i++) {
+                resultRowValues.push(addNumbers_down(rowValues[i]))
+            }
+            if (canRowMoveDown(resultRowValues)) {
+                return true;
+            }
+            return false;
+        }
+        //判断是否能向左移动
+        function canMoveLeft(){
+            var boxs = Array.prototype.slice.call(document.querySelectorAll('#container > div'));
+            var rows = [];
+            for (var i = 0; i < 16; i+=4) {
+                rows.push(boxs.slice(i,i+4))
+            }
+            console.log(rows)
+            var rowValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var values = []
+                for (var k = 0; k < rows[i].length; k++) {
+                    var value = rows[i][k].textContent
+                    values.push(value == '' ? '' : parseInt(value))
+                }
+                rowValues.push(values)
+                if (canRowMoveUp(values)) {
+                    return true;
+                }
+            }
+            console.log(rowValues)
+            var resultRowValues = [];
+            for (var i = 0; i < rowValues.length; i++) {
+                resultRowValues.push(addNumbers_up(rowValues[i]))
+            }
+            if (canRowMoveUp(resultRowValues)) {
+                return true;
+            }
+            return false;
+        }
+        //判断是否能向右移动
+        function canMoveRight(){
+            var boxs = Array.prototype.slice.call(document.querySelectorAll('#container > div'));
+            var rows = [];
+            for (var i = 0; i < 16; i+=4) {
+                rows.push(boxs.slice(i,i+4))
+            }
+            console.log(rows)
+            var rowValues = [];
+            for (var i = 0; i < rows.length; i++) {
+                var values = []
+                for (var k = 0; k < rows[i].length; k++) {
+                    var value = rows[i][k].textContent
+                    values.push(value == '' ? '' : parseInt(value))
+                }
+                rowValues.push(values)
+                if (canRowMoveDown(values)) {
+                    return true;
+                }
+            }
+            console.log(rowValues)
+            var resultRowValues = [];
+            for (var i = 0; i < rowValues.length; i++) {
+                resultRowValues.push(addNumbers_down(rowValues[i]))
+            }
+            if (canRowMoveDown(resultRowValues)) {
+                return true;
+            }
+            return false;
+        }
+        ////判断是否能向上和向左移动的条件
+        function canRowMoveUp(arr) {
+            var formatArr = [];
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] !== '') {
+                    formatArr.push(arr[i])
+                }
+            }
+            for (var i = 0; i < formatArr.length - 1; i++) {
+                if (formatArr[i] === formatArr[i + 1]) {
+                    return true;
+                }
+            }
+            var emptyIndex = -1;
+            var numIndex = -1;
+            for (var i = 0; i < arr.length; i++) {
+                if (arr[i] === '') {
+                    emptyIndex = i;
+                    break;
+                }
+            }
+            for (var i = emptyIndex + 1; i < arr.length; i++) {
+                if (arr[i] !== '') {
+                    numIndex = i;
+                    break;
+                }
+            }
+            if (emptyIndex !== -1 && numIndex !== -1) {
+                return true;
+            }
+            return false;
+        }
+        ////判断是否能向下和向右移动的条件
+        function canRowMoveDown(arr){
+            var formatArr = [];
+            for (var i = arr.length - 1; i > -1; i--) {
+                if (arr[i] !== '') {
+                    formatArr.push(arr[i])
+                }
+            }
+            for (var i = 0; i < formatArr.length - 1; i++) {
+                if (formatArr[i] === formatArr[i + 1]) {
+                    return true;
+                }
+            }
+            var emptyIndex = -1;
+            var numIndex = -1;
+            for (var i = arr.length - 1; i > 0 ; i--) {
+                if (arr[i] === '') {
+                    emptyIndex = i;
+                    break;
+                }
+            }
+            for (var i = emptyIndex - 1; i > -1; i--) {
+                if (arr[i] !== '') {
+                    numIndex = i;
+                    break;
+                }
+            }
+            if (emptyIndex !== -1 && numIndex !== -1) {
+                return true;
+            }
+            return false;
+        }
+        function gameOver(){
+            if(canMoveUp() === false && canMoveDown() === false && canMoveLeft() === false & canMoveRight() === false){
+                alert ('游戏结束')
+            }
+        }
+        
+        buildInterface();
+        renderNumbersToInterface(createNumber2or4());
+        renderNumbersToInterface(createNumber2or4());
+        addEvent()
+    </script>
+</body>
+
+</html>
+
